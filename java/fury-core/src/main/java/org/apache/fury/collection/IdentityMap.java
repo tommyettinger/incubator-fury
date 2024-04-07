@@ -454,13 +454,23 @@ public class IdentityMap<K, V> implements Map<K, V> {
 			int hc = System.identityHashCode(key);
 			int hr1 = (int)(hashMultiplier1 * hc >>> shift) | 1;
 			K k1 = keyTable[hr1];
-			if (k1 == null || key == (k1)) {
+			if (k1 == null) {
+				keyTable[hr1] = key;
+				valueTable[hr1] = value;
+				return false;
+			}
+			if (key==(k1)) {
 				valueTable[hr1] = value;
 				return false;
 			}
 			int hr2 = (int)(hashMultiplier2 * hc >>> shift) & -2;
 			K k2 = keyTable[hr2];
-			if (k2 == null || key == (k2)) {
+			if (k2 == null) {
+				keyTable[hr2] = key;
+				valueTable[hr2] = value;
+				return false;
+			}
+			if (key==(k2)) {
 				valueTable[hr2] = value;
 				return false;
 			}

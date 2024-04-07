@@ -74,7 +74,7 @@ public final class EnumStringBytes {
     // Enum string such as classname are very common, compare hashcode only will have better
     // performance.
     // Java hashcode is 32-bit, so comparing hashCode equality is necessary here.
-    return hashCode == that.hashCode;
+    return that != null && hashCode == that.hashCode;
   }
 
   public byte[] getBytes() {
