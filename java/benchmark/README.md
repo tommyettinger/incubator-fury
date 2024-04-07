@@ -15,9 +15,9 @@ Fury Java Benchmark contains benchmarks for:
 > Kryo benchmark suite is based on [Kryo benchmark](https://github.com/EsotericSoftware/kryo/tree/master/benchmarks).
 
 # How to run
-This benchmark use [jmh](https://github.com/openjdk/jmh) as benchmark tool. [jmh](https://github.com/openjdk/jmh) is
-licensed under GPL V2 with CLASSPATH exception, the usage can't be included in apache source/binary release unless
-as an optional feature. So Fury make it as an optional dependency and you must enable `jmh` profile to activate it.
+This benchmark uses [jmh](https://github.com/openjdk/jmh) as benchmark tool. [jmh](https://github.com/openjdk/jmh) is
+licensed under GPL V2 with CLASSPATH exception, so it can't be included in apache source/binary releases unless
+as an optional feature. So, Fury makes it an optional dependency; you must enable the `jmh` profile to activate it.
 
 ```bash
 # Install fury
@@ -25,7 +25,7 @@ cd ../java && mvn install -DskipTests -Dcheckstyle.skip -Dlicense.skip -Dmaven.j
 
 # build benchmark jar
 # use `-Pjmh` to download jmh dependencies, we mark it as optional
-# since jmh is licenced under GPL V2 andn not comply with the license policy of ASF.
+# since jmh is licenced under GPL V2 and does not comply with the license policy of ASF.
 mvn package -Pjmh
 # run benchmark
 nohup java -jar target/benchmarks.jar -f 5 -wi 3 -i 5 -t 1 -w 3s -r 5s -rf csv >bench.log 2>&1 &
@@ -86,16 +86,16 @@ profiler.sh  -d 30 -f $pic `jps | grep ForkedMain | awk '{print $1}'`
 2. Determine what the flags are set to on current platform:
    * Use `java ${other_options} -XX:+PrintFlagsFinal -version`, should include all other options on the command line because some options affect others, particularly when setting GC-related flags.
    * `jcmd $pid VM.flags -all` -XX:FreqInlineSize= flag specifies the maximum number of bytecode instructions to inline for a method. The default value depends on the platform – for 64-bit Linux, it's 325.
-3. `hot method too big` need to be optimized.
+3. Where a method is marked with `hot method too big`, that needs to be optimized.
 4. See:
    * https://wiki.openjdk.java.net/display/HotSpot/Server+Compiler+Inlining+Messages
    * https://techblug.wordpress.com/2013/08/19/java-jit-compiler-inlining/
-5. escape analysis
+5. Escape analysis
 6. -server -XX:+TieredCompilation: In Java 8, when the server compiler is enabled, tiered compilation
    is also enabled by default. 64-bit java8 use server compiler by default(use java -version to check).
-7. check CodeCache: grep -nr 'CodeCache' compile.log. 64-bit server with tiered compilation, Default code cache for Java
+7. Check CodeCache: grep -nr 'CodeCache' compile.log. 64-bit server with tiered compilation, Default code cache for Java
    8 is 240 MB. (not happen in benchmarks)
-8. deoptimization: made not entrant and made zombie. For tiered compilation, the code will be compiled to new level, and
+8. Deoptimization: made not entrant and made zombie. For tiered compilation, the code will be compiled to new level, and
    old code will be made not entrant and zombie.
 9. size > DesiredMethodLimit: the inlining that's been done so far has inlined more than DesiredMethodLimit bytecodes so
    inlining will be stopped.
