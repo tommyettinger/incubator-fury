@@ -671,11 +671,8 @@ public class ObjectIntMap<K> {
 	 * The map will be empty after this call returns.
 	 */
 	public void clear() {
-		if (size == 0) {
-			return;
-		}
 		size = 0;
-		Utilities.clearObjectArray(keyTable, 0, keyTable.length);
+		ObjectArray.clearObjectArray(keyTable, 0, keyTable.length);
 	}
 
 	/**
@@ -741,7 +738,6 @@ public class ObjectIntMap<K> {
 	 */
 	@SuppressWarnings("unchecked")
 	protected boolean resize(final int newSize) {
-		if(size == 0) return true;
 		if(flipThreshold == 0) {
 			resizeLinear(newSize);
 			return false;

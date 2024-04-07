@@ -16,8 +16,6 @@
  */
 package org.apache.fury.collection;
 
-import java.util.Arrays;
-
 /**
  * Utility code shared by various data structures in this package.
  *
@@ -187,10 +185,6 @@ public final class Utilities {
             0xF26D8B7221C57113L, 0xE8B920F29261309BL, 0xD39011984C254301L, 0xCDE0D80E809155D9L,
     };
 
-    private static final int COPY_THRESHOLD = 128;
-    private static final int NIL_ARRAY_SIZE = 1024;
-    private static final Object[] NIL_ARRAY = new Object[NIL_ARRAY_SIZE];
-
     /**
      * Not instantiable.
      */
@@ -249,29 +243,6 @@ public final class Utilities {
             throw new IllegalArgumentException("The required capacity is too large: " + capacity);
         }
         return tableSize;
-    }
-
-    /**
-     * Set all object array elements to null. This method is faster than {@link Arrays#fill} for large
-     * arrays (> 128).
-     * <br>
-     * From Apache Fury's ObjectArray class.
-     */
-    public static void clearObjectArray(Object[] objects, int start, int size) {
-        if (size < COPY_THRESHOLD) {
-            Arrays.fill(objects, start, size, null);
-        } else {
-            if (size < NIL_ARRAY_SIZE) {
-                System.arraycopy(NIL_ARRAY, 0, objects, start, size);
-            } else {
-                while (size > NIL_ARRAY_SIZE) {
-                    System.arraycopy(NIL_ARRAY, 0, objects, start, NIL_ARRAY_SIZE);
-                    size -= NIL_ARRAY_SIZE;
-                    start += NIL_ARRAY_SIZE;
-                }
-                System.arraycopy(NIL_ARRAY, 0, objects, start, size);
-            }
-        }
     }
 
     /**

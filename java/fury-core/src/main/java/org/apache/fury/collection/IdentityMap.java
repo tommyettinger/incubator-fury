@@ -660,12 +660,9 @@ public class IdentityMap<K, V> implements Map<K, V> {
 	 * The map will be empty after this call returns.
 	 */
 	public void clear() {
-		if (size == 0) {
-			return;
-		}
 		size = 0;
-		Utilities.clearObjectArray(keyTable, 0, keyTable.length);
-		Utilities.clearObjectArray(valueTable, 0, valueTable.length);
+		ObjectArray.clearObjectArray(keyTable, 0, keyTable.length);
+		ObjectArray.clearObjectArray(valueTable, 0, valueTable.length);
 	}
 
 	/**
@@ -732,7 +729,6 @@ public class IdentityMap<K, V> implements Map<K, V> {
 	 */
 	@SuppressWarnings("unchecked")
 	protected boolean resize(final int newSize) {
-		if(size == 0) return true;
 		if(flipThreshold == 0) {
 			resizeLinear(newSize);
 			return false;
