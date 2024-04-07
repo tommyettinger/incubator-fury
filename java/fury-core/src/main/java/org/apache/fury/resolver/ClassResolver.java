@@ -619,7 +619,7 @@ public class ClassResolver {
 
   /** Set serializer for class whose name is {@code className}. */
   public void setSerializer(String className, Class<? extends Serializer> serializer) {
-    for (Map.Entry<Class<?>, ClassInfo> entry : classInfoMap.iterable()) {
+    for (Map.Entry<Class<?>, ClassInfo> entry : classInfoMap.entrySet()) {
       if (extRegistry.registeredClasses.containsKey(className)) {
         LOG.warn("Skip clear serializer for registered class {}", className);
         return;
@@ -636,7 +636,7 @@ public class ClassResolver {
 
   /** Set serializer for classes starts with {@code classNamePrefix}. */
   public void setSerializers(String classNamePrefix, Class<? extends Serializer> serializer) {
-    for (Map.Entry<Class<?>, ClassInfo> entry : classInfoMap.iterable()) {
+    for (Map.Entry<Class<?>, ClassInfo> entry : classInfoMap.entrySet()) {
       Class<?> cls = entry.getKey();
       String className = cls.getName();
       if (extRegistry.registeredClasses.containsKey(className)) {
@@ -1723,7 +1723,7 @@ public class ClassResolver {
     public boolean equals(Object o) {
       // ClassNameBytes is used internally, skip
       ClassNameBytes that = (ClassNameBytes) o;
-      return packageHash == that.packageHash && classNameHash == that.classNameHash;
+      return that != null && packageHash == that.packageHash && classNameHash == that.classNameHash;
     }
 
     @Override

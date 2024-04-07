@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class ShimDispatcher {
   private static final Logger LOG = LoggerFactory.getLogger(ShimDispatcher.class);
 
-  private final FuryObjectMap<String, Class<? extends Serializer>> className2ShimSerializerClass =
+  private final ObjectMap<String, Class<? extends Serializer>> className2ShimSerializerClass =
       new ObjectMap<>(4, 0.75f);
 
   private final Fury fury;

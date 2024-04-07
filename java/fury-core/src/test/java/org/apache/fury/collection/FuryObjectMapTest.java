@@ -28,7 +28,7 @@ public class FuryObjectMapTest {
 
   @Test
   public void testIterable() {
-    FuryObjectMap<String, String> map = new ObjectMap<>(4, 0.2f);
+    FuryObjectMap<String, String> map = new FuryObjectMap<>(4, 0.2f);
     Map<String, String> hashMap = new HashMap<>();
     for (int i = 0; i < 100; i++) {
       map.put("k" + i, "v" + i);
@@ -43,7 +43,7 @@ public class FuryObjectMapTest {
 
   @Test
   public void testForEach() {
-    FuryObjectMap<String, String> map = new ObjectMap<>(4, 0.2f);
+    ObjectMap<String, String> map = new ObjectMap<>(4, 0.2f);
     Map<String, String> hashMap = new HashMap<>();
     for (int i = 0; i < 100; i++) {
       map.put("k" + i, "v" + i);
