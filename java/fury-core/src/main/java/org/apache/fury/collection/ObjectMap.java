@@ -926,7 +926,6 @@ public class ObjectMap<K, V> implements Map<K, V> {
 			if (key.equals(other))
 				return valueTable[i]; // Same key was found.
 			if (other == null){
-				i = ~i; // Empty space was found.
 				keyTable[i] = key;
 				valueTable[i] = value;
 				if (size++ >= loadThreshold) resizeLinear(keyTable.length << 1);

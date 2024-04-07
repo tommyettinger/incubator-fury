@@ -149,7 +149,7 @@ public class IdentityObjectIntMap<K> {
 
 	protected int[] valueTable;
 
-	protected int defaultValue = 0;
+	protected int defaultValue = Integer.MIN_VALUE;
 
 	/**
 	 * Holds a cached {@link #entrySet()}.
@@ -956,7 +956,6 @@ public class IdentityObjectIntMap<K> {
 			if (key==(other))
 				return valueTable[i]; // Same key was found.
 			if (other == null){
-				i = ~i; // Empty space was found.
 				keyTable[i] = key;
 				valueTable[i] = value;
 				if (size++ >= loadThreshold) resizeLinear(keyTable.length << 1);
