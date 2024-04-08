@@ -771,23 +771,24 @@ public class IdentityObjectIntMap<K> {
 
 		regenHashMultipliers(newSize);
 
-		for (int i = 0; i < oldK.length; i++) {
-			if (oldK[i] != null) {
-				if (putSafe(oldK[i], oldV[i])) {
-					// Placing the old key failed for any reason.
-					keyTable = oldK;
-					valueTable = oldV;
-					hashMultiplier1 = oldH1;
-					hashMultiplier2 = oldH2;
-					mask = keyTable.length - 1;
-					shift = Long.numberOfLeadingZeros(newSize - 1L);
-					flipThreshold = Integer.numberOfTrailingZeros(keyTable.length) + 4;
-					loadThreshold = (int)(loadFactor * keyTable.length) - 1;
-					return true;
+		if(size > 0) {
+			for (int i = 0; i < oldK.length; i++) {
+				if (oldK[i] != null) {
+					if (putSafe(oldK[i], oldV[i])) {
+						// Placing the old key failed for any reason.
+						keyTable = oldK;
+						valueTable = oldV;
+						hashMultiplier1 = oldH1;
+						hashMultiplier2 = oldH2;
+						mask = keyTable.length - 1;
+						shift = Long.numberOfLeadingZeros(newSize - 1L);
+						flipThreshold = Integer.numberOfTrailingZeros(keyTable.length) + 4;
+						loadThreshold = (int) (loadFactor * keyTable.length) - 1;
+						return true;
+					}
 				}
 			}
 		}
-
 		return false;
 	}
 

@@ -164,6 +164,58 @@ public class FuryTest extends FuryTestBase {
         Collections.singletonMap("k", 1), serDe(fury1, fury2, Collections.singletonMap("k", 1)));
   }
 
+//  public static void main(String[] args) {
+//    FuryBuilder builder =
+//            Fury.builder()
+//                    .withLanguage(Language.XLANG)
+//                    .withRefTracking(true)
+//                    .requireClassRegistration(false);
+//    Fury fury1 = builder.build();
+//    Fury fury2 = builder.build();
+////    if(!"str".equals(serDe(fury1, fury2, "str")))
+////      System.out.println("fail");
+////    if(!"str".equals(serDe(fury1, fury2, new StringBuilder("str")).toString()))
+////      System.out.println("fail");
+////    if(!"str".equals(serDe(fury1, fury2, new StringBuffer("str")).toString()))
+////      System.out.println("fail");
+////    serDe(fury1, fury2, SerializersTest.EnumFoo.A);
+////    serDe(fury1, fury2, SerializersTest.EnumFoo.B);
+////    serDe(fury1, fury2, SerializersTest.EnumSubClass.A);
+////    serDe(fury1, fury2, SerializersTest.EnumSubClass.B);
+////    serDe(fury1, fury2, BigInteger.valueOf(100));
+////    serDe(fury1, fury2, BigDecimal.valueOf(100, 2));
+////    java.sql.Date sqlDate = new java.sql.Date(System.currentTimeMillis());
+////    serDe(fury1, fury2, sqlDate);
+////    LocalDate localDate = LocalDate.now();
+////    serDe(fury1, fury2, localDate);
+////    Date utilDate = new Date();
+////    serDe(fury1, fury2, utilDate);
+////    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+////    serDe(fury1, fury2, timestamp);
+////    Instant instant = DateTimeUtils.truncateInstantToMicros(Instant.now());
+////    serDe(fury1, fury2, instant);
+////
+//    ArraySerializersTest.testPrimitiveArray(fury1, fury2);
+//
+//    serDe(fury1, fury2, Arrays.asList(1, 2));
+//    List<String> arrayList = Arrays.asList("str", "str");
+//    serDe(fury1, fury2, arrayList);
+//    serDe(fury1, fury2, new LinkedList<>(arrayList));
+//    serDe(fury1, fury2, new HashSet<>(arrayList));
+//    TreeSet<String> treeSet = new TreeSet<>(Comparator.naturalOrder());
+//    treeSet.add("str1");
+//    treeSet.add("str2");
+//    serDe(fury1, fury2, treeSet);
+//
+//    HashMap<String, Integer> hashMap = new HashMap<>();
+//    hashMap.put("k1", 1);
+//    hashMap.put("k2", 2);
+//    serDe(fury1, fury2, hashMap);
+////    LinkedHashMap<String, Integer> nlhm = new LinkedHashMap<>(hashMap);
+//    if(!new LinkedHashMap<>(hashMap).equals(serDe(fury1, fury2, new LinkedHashMap<>(hashMap))))
+//      System.out.println("FAIL");
+//  }
+
   @Test(dataProvider = "languageConfig")
   public void testSerializationToBuffer(Language language) {
     Fury fury1 = Fury.builder().withLanguage(language).requireClassRegistration(false).build();
