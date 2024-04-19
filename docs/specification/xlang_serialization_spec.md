@@ -29,11 +29,9 @@ also introduce more complexities compared to static serialization frameworks. So
 - int16: a 16-bit signed integer.
 - int32: a 32-bit signed integer.
 - var_int32: a 32-bit signed integer which use fury var_int32 encoding.
-- fixed_int32: a 32-bit signed integer which use two's complement encoding.
 - int64: a 64-bit signed integer.
 - var_int64: a 64-bit signed integer which use fury PVL encoding.
 - sli_int64: a 64-bit signed integer which use fury SLI encoding.
-- fixed_int64: a 64-bit signed integer which use two's complement encoding.
 - float16: a 16-bit floating point number.
 - float32: a 32-bit floating point number.
 - float64: a 64-bit floating point number including NaN and Infinity.
@@ -53,6 +51,7 @@ also introduce more complexities compared to static serialization frameworks. So
   interoperability between array and list.
     - array: multidimensional array which every sub-array can have different sizes but all have same type.
     - bool_array: one dimensional int16 array.
+    - int8_array: one dimensional int8 array.
     - int16_array: one dimensional int16 array.
     - int32_array: one dimensional int32 array.
     - int64_array: one dimensional int64 array.
@@ -339,25 +338,28 @@ Meta string is mainly used to encode meta strings such as field names.
 
 String binary encoding algorithm:
 
-| Algorithm                 | Pattern        | Description                                                                                                                                      |
-|---------------------------|----------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| LOWER_SPECIAL             | `a-z._$\|`     | every char is written using 5 bits, `a-z`: `0b00000~0b11001`, `._$\|`: `0b11010~0b11101`                                                         |
-| LOWER_UPPER_DIGIT_SPECIAL | `a-zA-Z0~9._$` | every char is written using 6 bits, `a-z`: `0b00000~0b11110`, `A-Z`: `0b11010~0b110011`, `0~9`: `0b110100~0b111101`, `._$`: `0b111110~0b1000000` |
-| UTF-8                     | any chars      | UTF-8 encoding                                                                                                                                   |
+| Algorithm                 | Pattern       | Description                                                                                                                                    |
+|---------------------------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| LOWER_SPECIAL             | `a-z._$\|`    | every char is written using 5 bits, `a-z`: `0b00000~0b11001`, `._$\|`: `0b11010~0b11101`                                                       |
+| LOWER_UPPER_DIGIT_SPECIAL | `a-zA-Z0~9._` | every char is written using 6 bits, `a-z`: `0b00000~0b11001`, `A-Z`: `0b11010~0b110011`, `0~9`: `0b110100~0b111101`, `._`: `0b111110~0b111111` |
+| UTF-8                     | any chars     | UTF-8 encoding                                                                                                                                 |
 
 Encoding flags:
 
-| Encoding Flag             | Pattern                                                   | Encoding Algorithm                                                                                                                  |
-|---------------------------|-----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| LOWER_SPECIAL             | every char is in `a-z._$\|`                               | `LOWER_SPECIAL`                                                                                                                     |
-| REP_FIRST_LOWER_SPECIAL   | every char is in `a-z._$` except first char is upper case | replace first upper case char to lower case, then use `LOWER_SPECIAL`                                                               |
-| REP_MUL_LOWER_SPECIAL     | every char is in `a-zA-Z._$`                              | replace every upper case char by `\|` + `lower case`, then use `LOWER_SPECIAL`, use this encoding if it's smaller than Encoding `3` |
-| LOWER_UPPER_DIGIT_SPECIAL | every char is in `a-zA-Z._$`                              | use `LOWER_UPPER_DIGIT_SPECIAL` encoding if it's smaller than Encoding `2`                                                          |
-| UTF8                      | any utf-8 char                                            | use `UTF-8` encoding                                                                                                                |
-| Compression               | any utf-8 char                                            | lossless compression                                                                                                                |
+| Encoding Flag             | Pattern                                                  | Encoding Algorithm                                                                                                                                          |
+|---------------------------|----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| LOWER_SPECIAL             | every char is in `a-z._\|`                               | `LOWER_SPECIAL`                                                                                                                                             |
+| FIRST_TO_LOWER_SPECIAL    | every char is in `a-z._` except first char is upper case | replace first upper case char to lower case, then use `LOWER_SPECIAL`                                                                                       |
+| ALL_TO_LOWER_SPECIAL      | every char is in `a-zA-Z._`                              | replace every upper case char by `\|` + `lower case`, then use `LOWER_SPECIAL`, use this encoding if it's smaller than Encoding `LOWER_UPPER_DIGIT_SPECIAL` |
+| LOWER_UPPER_DIGIT_SPECIAL | every char is in `a-zA-Z._`                              | use `LOWER_UPPER_DIGIT_SPECIAL` encoding if it's smaller than Encoding `FIRST_TO_LOWER_SPECIAL`                                                             |
+| UTF8                      | any utf-8 char                                           | use `UTF-8` encoding                                                                                                                                        |
+| Compression               | any utf-8 char                                           | lossless compression                                                                                                                                        |
 
-Depending on cases, one can choose encoding `flags + data` jointly, uses 3 bits of first byte for flags and other bytes
-for data.
+Notes:
+
+- Depending on cases, one can choose encoding `flags + data` jointly, uses 3 bits of first byte for flags and other
+  bytes
+  for data.
 
 ## Value Format
 
@@ -560,7 +562,7 @@ Map iteration is too expensive, Fury won't compute the header like for list sinc
 Users can use `MapFieldInfo` annotation to provide the header in advance. Otherwise Fury will use first key-value pair
 to predict header optimistically, and update the chunk header if the prediction failed at some pair.
 
-Fury will serialize the map chunk by chunk, every chunk has 127 pairs at most.
+Fury will serialize the map chunk by chunk, every chunk has 255 pairs at most.
 
 ```
 |    1 byte      |     1 byte     | variable bytes  |
@@ -592,6 +594,21 @@ format will be:
 
 `KV header` will be a header marked by `MapFieldInfo` in java. For languages such as golang, this can be computed in
 advance for non-interface types most times.
+
+#### Why serialize chunk by chunk?
+
+When fury will use first key-value pair to predict header optimistically, it can't know how many pairs have same
+meta(tracking kef ref, key has null and so on). If we don't write chunk by chunk with max chunk size, we must write at
+least `X` bytes to take up a place for later to update the number which has same elements, `X` is the num_bytes for
+encoding varint encoding of map size.
+
+And most map size are smaller than 255, if all pairs have same data, the chunk will be 1. This is common in golang/rust,
+which object are not reference by default.
+
+Also, if only one or two keys have different meta, we can make it into a different chunk, so that most pairs can share
+meta.
+
+The implementation can accumulate read count with map size to decide whether to read more chunks.
 
 ### enum
 

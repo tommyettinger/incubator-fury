@@ -26,31 +26,57 @@ import org.apache.fury.util.GraalvmSupport;
  */
 public class LoggerFactory {
   private static volatile boolean disableLogging;
-  private static volatile boolean useSlf4jlogger;
+  private static volatile boolean useSlf4jLogger;
+  private static volatile int logLevel = LogLevel.INFO_LEVEL;
 
+  /** Disable Logger, there will be no log output. */
   public static void disableLogging() {
     disableLogging = true;
   }
 
+  /**
+   * Enable Logger. {@link FuryLogger} is used by default. You can configure whether to use {@link
+   * Slf4jLogger} through {@link LoggerFactory#createSlf4jLogger(Class)}.
+   */
   public static void enableLogging() {
     disableLogging = false;
   }
 
-  public static void useSlf4jLogging(boolean useSlf4jLogging) {
-    LoggerFactory.useSlf4jlogger = useSlf4jLogging;
+  /**
+   * Set the {@link FuryLogger} log output control level, the default is {@link
+   * LogLevel#INFO_LEVEL}.
+   *
+   * @param level The log control level to be set, see {@link LogLevel}.
+   */
+  public static void setLogLevel(int level) {
+    logLevel = level;
   }
 
+  /**
+   * Set whether to use Slf4jLogging.
+   *
+   * @param useSlf4jLogging {@code true} means using {@link Slf4jLogger}, {@code false} means not
+   *     using it.
+   */
+  public static void useSlf4jLogging(boolean useSlf4jLogging) {
+    LoggerFactory.useSlf4jLogger = useSlf4jLogging;
+  }
+
+  /**
+   * Get a Logger for log output.
+   *
+   * @param clazz Class of output Log.
+   * @return If the logger is disabled, {@link NilLogger} will be returned, otherwise {@link
+   *     FuryLogger} or {@link Slf4jLogger} will be returned.
+   */
   public static Logger getLogger(Class<?> clazz) {
     if (disableLogging) {
       return new NilLogger();
     } else {
-      if (GraalvmSupport.IN_GRAALVM_NATIVE_IMAGE) {
-        return new FuryLogger(clazz);
-      }
-      if (useSlf4jlogger) {
-        return createSlf4jLogger(clazz);
+      if (GraalvmSupport.IN_GRAALVM_NATIVE_IMAGE || !useSlf4jLogger) {
+        return new FuryLogger(clazz, logLevel);
       } else {
-        return new FuryLogger(clazz);
+        return createSlf4jLogger(clazz);
       }
     }
   }
